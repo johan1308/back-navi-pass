@@ -9,7 +9,7 @@ class UserController extends Controller
 {
     public function index(): JsonResponse
     {
-        $user = User::all();
+        $user = User::orderByDesc('id')->paginate(10);
         return response()->json($user);
     }
 
@@ -21,5 +21,4 @@ class UserController extends Controller
         }
         return response()->json($user);
     }
-
 }
