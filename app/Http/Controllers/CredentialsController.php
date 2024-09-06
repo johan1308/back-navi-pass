@@ -10,6 +10,7 @@ use App\Models\Additional_information;
 
 
 
+
 class CredentialsController extends Controller
 {
     // 
@@ -20,13 +21,12 @@ class CredentialsController extends Controller
     }
 
     public function store(Request $request): JsonResponse
-    {   
+    {
 
-    
-        return response()->json([
-            $request->all(),
+
+        return $this->sendSuccess([
+            'message'    => ''
         ], 201);
-        
     }
 
     public function show($id): JsonResponse
@@ -36,7 +36,7 @@ class CredentialsController extends Controller
     }
 
 
-    
+
     public function update(Request $request, $id)
     {
         $credentials = Credentials::find($id);
@@ -47,7 +47,6 @@ class CredentialsController extends Controller
         return response()->json([
             'mensaje' => 'eliminado',
         ], 200);
-
     }
 
 

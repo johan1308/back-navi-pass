@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Categories;
 use App\Models\SubCategories;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+
 
 
 
@@ -13,25 +16,85 @@ class CategoriesController extends Controller
     //
     public function index(): JsonResponse
     {
-        // $user = Credentials::orderByDesc('id')->paginate(10);
-        $user = Categories::all();
+        $user = Categories::orderByDesc('id')->paginate(10);
         return response()->json($user);
     }
 
-    public function show(): JsonResponse
+    public function store(Request $request): JsonResponse
     {
-        $user = Categories::find(1);
-        return response()->json($user);
+        $validate = $request->validate(([
+            "name" => "required|string|max:300",
+        ]));
+
+
+        $category = Categories::firstOrCreate($validate);
+        if (!$category->wasRecentlyCreated) {
+            return $this->sendError(
+                'La categoría ya existe',
+                $this->BadRequestStatus
+            );
+        }
+        return $this->sendSuccess(
+            $category,
+            201,
+            'Categoría registrada con éxito'
+        );
+    }
+
+    public function show(int $id): JsonResponse
+    {
+        $user = Categories::find($id);
+        return $this->sendSuccess($user, $this->successStatus);
+    }
+
+    public function update(Request $request, int $id): JsonResponse
+    {
+        $validate = $request->validate(([
+            "name" => "required|string|max:300",
+        ]));
+
+        $category = Categories::find($id);
+        if (!$category) {
+            return $this->sendError(
+                'Categoría no existe',
+                $this->NotFoundStatus
+            );
+        }
+
+        $category->update($validate);
+        return $this->sendSuccess(
+            $category,
+            $this->successStatus,
+            "Actualizado con éxito"
+        );
     }
 
 
-    public function getAllSubCategories(): JsonResponse{
-        $user = SubCategories::all();
-        return response()->json($user);
+    public function destroy(int $id): JsonResponse
+    {
+
+        Categories::findOrFail($id)->delete();
+        return $this->sendSuccess(
+            null, 
+            $this->successStatus, 
+            'Eliminado con éxito'
+        );
     }
-    public function getIDSubCategories($id): JsonResponse
+
+
+
+
+    // Controladores para la Sub-categorías
+    public function getAllSubCategories(): LengthAwarePaginator
+    {
+        $user = new SubCategories();
+        return $this->sendPaginate($user);
+
+    }
+    public function getIDSubCategories($id): LengthAwarePaginator
     {
         $user = SubCategories::findOrFail($id);
-        return response()->json($user);
+        
+        return $this->sendPaginate($user);
     }
 }
