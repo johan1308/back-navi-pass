@@ -2,47 +2,47 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Categories;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
+use App\Models\SubCategories;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
 
-
-
-
-class CategoriesController extends Controller
+class SubCategoriesController extends Controller
 {
     //
     public function index(): LengthAwarePaginator
     {
-        $category = new Categories();
+        $category = new SubCategories();
         return $this->sendPaginate($category);
     }
 
     public function store(Request $request): JsonResponse
     {
+        
         $validate = $request->validate(([
             "name" => "required|string|max:300",
+            "category_id" => "required",
         ]));
 
 
-        $category = Categories::firstOrCreate($validate);
+        $category = SubCategories::firstOrCreate($validate);
         if (!$category->wasRecentlyCreated) {
             return $this->sendError(
-                'La categoría ya existe',
+                'La sub-categoría ya existe',
                 $this->BadRequestStatus
             );
         }
+
         return $this->sendSuccess(
             $category,
             201,
-            'Categoría registrada con éxito'
+            'Sub-categoría registrada con éxito'
         );
     }
 
     public function show(int $id): JsonResponse
     {
-        $user = Categories::find($id);
+        $user = SubCategories::find($id);
         return $this->sendSuccess($user, $this->successStatus);
     }
 
@@ -52,7 +52,7 @@ class CategoriesController extends Controller
             "name" => "required|string|max:300",
         ]));
 
-        $category = Categories::find($id);
+        $category = SubCategories::find($id);
         if (!$category) {
             return $this->sendError(
                 'Categoría no existe',
@@ -72,11 +72,11 @@ class CategoriesController extends Controller
     public function destroy(int $id): JsonResponse
     {
 
-        Categories::findOrFail($id)->delete();
+        SubCategories::findOrFail($id)->delete();
         return $this->sendSuccess(
             null,
             $this->successStatus,
             'Eliminado con éxito'
         );
-    }    
+    }
 }
