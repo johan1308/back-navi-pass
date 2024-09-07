@@ -5,56 +5,79 @@ namespace App\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\Credentials;
-use App\Models\Additional_information;
 
-
-
-
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class CredentialsController extends Controller
+//
 {
-    // 
-    public function index()
+    public function index(): LengthAwarePaginator
     {
-        $query = Credentials::orderByDesc('id')->paginate(10);
-        return Response()->json($query);
+        $category = new Credentials();
+        return $this->sendPaginate($category);
     }
 
     public function store(Request $request): JsonResponse
     {
+        
+        $validate = $request->validate(([
+            "name" => "required|string|max:300",
+            "sub_category_id" => "required",
+        ]));
 
 
-        return $this->sendSuccess([
-            'message'    => ''
-        ], 201);
+        $category = Credentials::firstOrCreate($validate);
+        if (!$category->wasRecentlyCreated) {
+            return $this->sendError(
+                'La sub-categoría ya existe',
+                $this->BadRequestStatus
+            );
+        }
+
+        return $this->sendSuccess(
+            $category,
+            201,
+            'Registrado con exitosamente'
+        );
     }
 
-    public function show($id): JsonResponse
+    public function show(int $id): JsonResponse
     {
-        $query = Credentials::find($id);
-        return response()->json($query);
+        $user = Credentials::find($id);
+        return $this->sendSuccess($user, $this->successStatus);
+    }
+
+    public function update(Request $request, int $id): JsonResponse
+    {
+        $validate = $request->validate(([
+            "name" => "required|string|max:300",
+        ]));
+
+        $category = Credentials::find($id);
+        if (!$category) {
+            return $this->sendError(
+                'No se encuentra registrado',
+                $this->NotFoundStatus
+            );
+        }
+
+        $category->update($validate);
+        return $this->sendSuccess(
+            $category,
+            $this->successStatus,
+            "Actualizado con éxito"
+        );
     }
 
 
-
-    public function update(Request $request, $id)
+    public function destroy(int $id): JsonResponse
     {
-        $credentials = Credentials::find($id);
-    }
-    public function destroy($id)
-    {
-        $credentials = Credentials::find($id);
-        return response()->json([
-            'mensaje' => 'eliminado',
-        ], 200);
-    }
 
-
-    // additionals_informations
-
-    public function getAllAdditionals()
-    {
-        $query = Additional_information::orderByDesc('id')->paginate(10);
-        return Response()->json($query);
+        Credentials::findOrFail($id)->delete();
+        return $this->sendSuccess(
+            null,
+            $this->successStatus,
+            'Eliminado con éxito'
+        );
     }
 }

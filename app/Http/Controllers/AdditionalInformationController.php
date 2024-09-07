@@ -2,17 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\SubCategories;
+use App\Models\Additional_information;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
-class SubCategoriesController extends Controller
+class AdditionalInformationController extends Controller
 {
-    //
     public function index(): LengthAwarePaginator
     {
-        $category = new SubCategories();
+        $category = new Additional_information();
         return $this->sendPaginate($category);
     }
 
@@ -21,11 +20,11 @@ class SubCategoriesController extends Controller
         
         $validate = $request->validate(([
             "name" => "required|string|max:300",
-            "category_id" => "required",
+            "sub_category_id" => "required",
         ]));
 
 
-        $category = SubCategories::firstOrCreate($validate);
+        $category = Additional_information::firstOrCreate($validate);
         if (!$category->wasRecentlyCreated) {
             return $this->sendError(
                 'La sub-categoría ya existe',
@@ -42,7 +41,7 @@ class SubCategoriesController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        $user = SubCategories::find($id);
+        $user = Additional_information::find($id);
         return $this->sendSuccess($user, $this->successStatus);
     }
 
@@ -52,7 +51,7 @@ class SubCategoriesController extends Controller
             "name" => "required|string|max:300",
         ]));
 
-        $category = SubCategories::find($id);
+        $category = Additional_information::find($id);
         if (!$category) {
             return $this->sendError(
                 'No se encuentra registrado',
@@ -72,7 +71,7 @@ class SubCategoriesController extends Controller
     public function destroy(int $id): JsonResponse
     {
 
-        SubCategories::findOrFail($id)->delete();
+        Additional_information::findOrFail($id)->delete();
         return $this->sendSuccess(
             null,
             $this->successStatus,
