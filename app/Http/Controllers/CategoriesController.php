@@ -13,9 +13,14 @@ use Illuminate\Http\JsonResponse;
 class CategoriesController extends Controller
 {
     //
-    public function index(): LengthAwarePaginator
+    public function index(Request $request): LengthAwarePaginator | JsonResponse
     {
+        $queryParams  = $request->get('remove_pagination', false);
         $category = new Categories();
+        if ($queryParams) {
+            return $this->sendSuccess($category->all());
+        };
+
         return $this->sendPaginate($category);
     }
 
@@ -29,7 +34,7 @@ class CategoriesController extends Controller
         $category = Categories::firstOrCreate($validate);
         if (!$category->wasRecentlyCreated) {
             return $this->sendError(
-                'La categoría ya existe',
+                'Ya se encuentra registrado',
                 $this->BadRequestStatus
             );
         }
@@ -78,5 +83,5 @@ class CategoriesController extends Controller
             $this->successStatus,
             'Eliminado con éxito'
         );
-    }    
+    }
 }

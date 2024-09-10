@@ -10,15 +10,21 @@ use Illuminate\Http\JsonResponse;
 class SubCategoriesController extends Controller
 {
     //
-    public function index(): LengthAwarePaginator
+    public function index(Request $request): LengthAwarePaginator | JsonResponse
     {
         $category = new SubCategories();
+
+        $queryParams  = $request->get('remove_pagination', false);
+        if ($queryParams) {
+            return $this->sendSuccess($category->all());
+        };
+
         return $this->sendPaginate($category);
     }
 
     public function store(Request $request): JsonResponse
     {
-        
+
         $validate = $request->validate(([
             "name" => "required|string|max:300",
             "category_id" => "required",
@@ -28,7 +34,7 @@ class SubCategoriesController extends Controller
         $category = SubCategories::firstOrCreate($validate);
         if (!$category->wasRecentlyCreated) {
             return $this->sendError(
-                'La sub-categoría ya existe',
+                'Ya se encuentra registrado',
                 $this->BadRequestStatus
             );
         }

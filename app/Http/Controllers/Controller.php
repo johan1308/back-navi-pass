@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 
 abstract class Controller
 {
+    
     // Success
     public $successStatus = 200;
     public $createStatus = 200;
@@ -19,7 +22,7 @@ abstract class Controller
     public $ForbiddenStatus = 403;
 
 
-    public function sendSuccess($data = null, int $code, $message = null): JsonResponse
+    public function sendSuccess($data = null, int $code = 200, $message = null): JsonResponse
     {
         return response()->json([
             "data" => $data,
@@ -29,18 +32,15 @@ abstract class Controller
     }
 
 
-    public function sendPaginate(
-        Model $model,
-        $page = 10,
-        $field = "id"
-    ): LengthAwarePaginator {
+    public function sendPaginate(Model | Builder $model, $page = 10, $field = "id"): LengthAwarePaginator
+    {
 
         $data = $model
-            ->orderByDesc($field)
+            ->latest()
             ->paginate($page);
 
         $data->code = $this->successStatus;
-        
+
         return $data;
     }
 

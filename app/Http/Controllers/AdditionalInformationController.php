@@ -27,7 +27,7 @@ class AdditionalInformationController extends Controller
         $category = Additional_information::firstOrCreate($validate);
         if (!$category->wasRecentlyCreated) {
             return $this->sendError(
-                'La sub-categoría ya existe',
+                'Ya se encuentra registrado',
                 $this->BadRequestStatus
             );
         }

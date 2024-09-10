@@ -19,7 +19,8 @@ class CredentialsFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->email(),
+            'user' => fake()->email(),
+            'description' => fake()->text(),
             'password' => static::$password ??= Hash::make('password'),
             'sub_category_id' => SubCategories::factory(),
         ];

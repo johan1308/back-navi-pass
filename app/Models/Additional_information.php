@@ -19,6 +19,6 @@ class Additional_information extends Model
 
     public function sub_category()
     {
-        return $this->belongsTo(Credentials::class);
+        return $this->belongsTo(Credentials::class,'credential_id');
     }
 }

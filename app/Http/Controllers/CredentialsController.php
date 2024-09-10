@@ -2,36 +2,46 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CredentialsRequest;
+use App\Models\Additional_information;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\Credentials;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
+use function PHPSTORM_META\map;
+
 class CredentialsController extends Controller
 //
 {
-    public function index(): LengthAwarePaginator
+    public function index(Request $request): LengthAwarePaginator | JsonResponse
     {
-        $category = new Credentials();
-        return $this->sendPaginate($category);
+        $query = Credentials::query();
+        if ($request->has('sub_category')) {
+            $sub_category_id = $request->query('sub_category');
+            $query->where('sub_category_id', $sub_category_id);
+        }
+        return $this->sendPaginate($query);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(CredentialsRequest $request): JsonResponse
     {
-        
-        $validate = $request->validate(([
-            "name" => "required|string|max:300",
-            "sub_category_id" => "required",
-        ]));
+        $additional_information = $request->get('additional_information');
+        $category = Credentials::firstOrCreate($request->validated());
 
-
-        $category = Credentials::firstOrCreate($validate);
         if (!$category->wasRecentlyCreated) {
             return $this->sendError(
-                'La sub-categoría ya existe',
+                'Ya se encuentra registrado',
                 $this->BadRequestStatus
             );
+        }
+
+        foreach ($additional_information as $info) {
+            Additional_information::create([
+                ...$info,
+                "credential_id" => $category->id
+            ]);
         }
 
         return $this->sendSuccess(
@@ -43,14 +53,16 @@ class CredentialsController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        $user = Credentials::find($id);
-        return $this->sendSuccess($user, $this->successStatus);
+        $credential = Credentials::find($id);
+
+        dd($credential->additional_information);
+        return $this->sendSuccess($credential, $this->successStatus);
     }
 
     public function update(Request $request, int $id): JsonResponse
     {
         $validate = $request->validate(([
-            "name" => "required|string|max:300",
+            "user" => "required|string|max:300",
         ]));
 
         $category = Credentials::find($id);

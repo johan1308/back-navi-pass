@@ -13,12 +13,13 @@ class Credentials extends Model
     protected $table = "credentials";
 
     protected $fillable = [
-        'name',
+        'user',
         'password',
+        'description',
         'sub_category_id',
     ];
 
-
+    
 
 
 
@@ -31,6 +32,6 @@ class Credentials extends Model
 
     public function additional_information()
     {
-        return $this->hasMany(Additional_information::class);
+        return $this->hasMany(Additional_information::class,);
     }
 }

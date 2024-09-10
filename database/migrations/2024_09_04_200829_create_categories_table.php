@@ -28,8 +28,9 @@ return new class extends Migration
 
         Schema::create('credentials', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('user');
             $table->string('password');
+            $table->text('description')->nullable();
             $table->unsignedBigInteger('sub_category_id');
             $table->foreign('sub_category_id')->references('id')->on('sub_categories')->onDelete('cascade');
             $table->timestamps(); // Agrega 'created_at' y 'updated_at'
