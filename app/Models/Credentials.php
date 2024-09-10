@@ -19,7 +19,7 @@ class Credentials extends Model
         'sub_category_id',
     ];
 
-    
+
 
 
 
@@ -32,6 +32,9 @@ class Credentials extends Model
 
     public function additional_information()
     {
-        return $this->hasMany(Additional_information::class,);
+        return $this->hasMany(Additional_information::class, 'credential_id', 'id');
     }
+
+
+   
 }

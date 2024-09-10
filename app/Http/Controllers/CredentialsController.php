@@ -3,14 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CredentialsRequest;
-use App\Models\Additional_information;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\Credentials;
-
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
-use function PHPSTORM_META\map;
+
+
+
+
 
 class CredentialsController extends Controller
 //
@@ -28,7 +29,8 @@ class CredentialsController extends Controller
     public function store(CredentialsRequest $request): JsonResponse
     {
         $additional_information = $request->get('additional_information');
-        $category = Credentials::firstOrCreate($request->validated());
+        $payload = $request->except('additional_information');
+        $category = Credentials::firstOrCreate($payload);
 
         if (!$category->wasRecentlyCreated) {
             return $this->sendError(
@@ -37,13 +39,7 @@ class CredentialsController extends Controller
             );
         }
 
-        foreach ($additional_information as $info) {
-            Additional_information::create([
-                ...$info,
-                "credential_id" => $category->id
-            ]);
-        }
-
+        $category->additional_information()->createMany($additional_information);         
         return $this->sendSuccess(
             $category,
             201,
@@ -53,9 +49,7 @@ class CredentialsController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        $credential = Credentials::find($id);
-
-        dd($credential->additional_information);
+        $credential = Credentials::with('additional_information')->find($id);
         return $this->sendSuccess($credential, $this->successStatus);
     }
 
