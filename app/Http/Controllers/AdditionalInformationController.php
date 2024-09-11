@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AdditionalInformationRequests;
 use App\Models\Additional_information;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
@@ -15,16 +16,10 @@ class AdditionalInformationController extends Controller
         return $this->sendPaginate($category);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(AdditionalInformationRequests $request): JsonResponse
     {
-        
-        $validate = $request->validate(([
-            "name" => "required|string|max:300",
-            "sub_category_id" => "required",
-        ]));
 
-
-        $category = Additional_information::firstOrCreate($validate);
+        $category = Additional_information::firstOrCreate($request->validated());
         if (!$category->wasRecentlyCreated) {
             return $this->sendError(
                 'Ya se encuentra registrado',
@@ -47,10 +42,6 @@ class AdditionalInformationController extends Controller
 
     public function update(Request $request, int $id): JsonResponse
     {
-        $validate = $request->validate(([
-            "name" => "required|string|max:300",
-        ]));
-
         $category = Additional_information::find($id);
         if (!$category) {
             return $this->sendError(
@@ -58,8 +49,7 @@ class AdditionalInformationController extends Controller
                 $this->NotFoundStatus
             );
         }
-
-        $category->update($validate);
+        $category->update($request->all());
         return $this->sendSuccess(
             $category,
             $this->successStatus,

@@ -12,13 +12,15 @@ class SubCategoriesController extends Controller
     //
     public function index(Request $request): LengthAwarePaginator | JsonResponse
     {
-        $category = new SubCategories();
+        $category = SubCategories::query();
 
-        $queryParams  = $request->get('remove_pagination', false);
-        if ($queryParams) {
-            return $this->sendSuccess($category->all());
+        if ($request->has('category_id')) {
+            $category->where('category_id', $request->category_id);
         };
 
+        if ($request->has('remove_pagination')) {
+            return $this->sendSuccess($category->get());
+        };
         return $this->sendPaginate($category);
     }
 
