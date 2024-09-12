@@ -14,11 +14,14 @@ class CategoriesController extends Controller
 {
     //
     public function index(Request $request): LengthAwarePaginator | JsonResponse
-    {
-        $queryParams  = $request->get('remove_pagination', false);
-        $category = new Categories();
-        if ($queryParams) {
-            return $this->sendSuccess($category->all());
+    {        
+        $category = Categories::query();
+        if($request->has('search')){
+            $category->search($request->get('search'));
+        }
+                
+        if ($request->get('remove_pagination', false)) {
+            return $this->sendSuccess($category->get());
         };
 
         return $this->sendPaginate($category);

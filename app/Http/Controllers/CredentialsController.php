@@ -9,16 +9,19 @@ use App\Models\Credentials;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 
-
-
-
-
 class CredentialsController extends Controller
 //
 {
     public function index(Request $request): LengthAwarePaginator | JsonResponse
     {
+        
+        
         $query = Credentials::query();
+        
+        
+        if ($request->has('search')) {
+            $query->search($request->get("search"));
+        }
         if ($request->has('sub_category')) {
             $sub_category_id = $request->query('sub_category');
             $query->where('sub_category_id', $sub_category_id);
