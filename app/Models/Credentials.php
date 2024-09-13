@@ -23,7 +23,7 @@ class Credentials extends Model
         'sub_category_id',
     ];
 
-    public $columnsSearch = ['user'];
+    public $columnsSearch = ['user', 'description'];
 
 
     public function sub_category()
